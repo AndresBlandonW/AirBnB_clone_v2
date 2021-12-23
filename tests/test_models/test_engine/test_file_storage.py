@@ -107,3 +107,18 @@ class test_fileStorage(unittest.TestCase):
         from models.engine.file_storage import FileStorage
         print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    def test_delete(self):
+        """ Test the delete method for deleteing stuff """
+        from models.engine.file_storage import FileStorage
+        from models.state import State
+        fs = FileStorage()
+        state_1 = State()
+        state_2 = State()
+        fs.new(state_1)
+        fs.new(state_2)
+        fs.save()
+        old_num = len(fs.all(State).keys())
+        fs.delete(state_1)
+        num_states = len(fs.all(State).keys())
+        self.assertEqual(old_num - 1, num_states)

@@ -2,15 +2,15 @@
 """ Console Module """
 import cmd
 import sys
-from typing import ItemsView, cast
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+import os
 
 
 class HBNBCommand(cmd.Cmd):
@@ -38,7 +38,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -116,37 +115,40 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        all_args = args.split()
-
         if not args:
             print("** class name missing **")
             return
-        elif all_args[0] not in HBNBCommand.classes:
+        all_args = args.split()
+        if all_args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
+
         new_instance = HBNBCommand.classes[all_args[0]]()
+
         if all_args[1]:
-            can = 0
             all_args = all_args[1:]
-        
-        for param in all_args:
-            param = param.split("=")
-            op1 = param[1].strip('"')
-            op2 = op1.replace("_", " ")
-
-            param[1] = op2
-            all_args[can] = param
-            can = can + 1
-
+        counter = 0
+        for items in all_args:
+            item = items.split('=')
+            thing1 = item[1].strip('"')
+            thing2 = thing1.replace("_", " ")
+            item[1] = thing2
+            all_args[counter] = item
+            counter = counter + 1
         for pair in all_args:
             if pair[0] in self.types:
                 cast = self.types.get(pair[0])
-                pair[1] = cast(pair[1])
-                setattr(new_instance, pair[0], pair[1])
+                something = cast(pair[1])
+                pair[1] = something
+            '''Continue to next interation if type not in list'''
+            '''
+            if type(pair[1]) not in valid_types:
+                continue
+            '''
+            setattr(new_instance, pair[0], pair[1])
 
-        storage.save()
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -222,17 +224,16 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
         print_list = []
-
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.items():
                 print_list.append(str(v))
 
         print(print_list)

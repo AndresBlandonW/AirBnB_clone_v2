@@ -23,6 +23,7 @@ def cfun(text):
     new_t = text.replace('_', ' ')
     return "C " + new_t
 
+
 @app.route('/python', defaults={'text': None}, strict_slashes=False)
 @app.route("/python/<text>", strict_slashes=False)
 def pythonr(text):
@@ -32,6 +33,7 @@ def pythonr(text):
 
     newt = text.replace('_', ' ')
     return "Python " + newt
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

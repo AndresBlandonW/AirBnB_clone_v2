@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """Starts a Flask web application"""
+from models import *
 from models import storage
-from flask import Flask, abort, render_template
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
@@ -11,23 +12,14 @@ def tear_down(exception):
 
 
 @app.route('/states', strict_slashes=False)
-def states():
+@app.route('/states/<state_id>', strict_slashes=False)
+def states(state_id=None):
     """Renders an HTML page"""
     states = storage.all("State")
-    return render_template('9-states.html', states=states)
-
-
-@app.route('/states/<_id>', strict_slashes=False)
-def state(_id):
-    """Renders an HTML page"""
-    states = storage.all("State")
-    state = None
-    for st in states.values():
-        if _id == st.id:
-            state = st
-            break
-    return render_template('9-states.html', state=state)
+    if state_id is not None:
+        state_id = 'State.' + state_id
+    return render_template('9-states.html', states=states, state_id=state_id)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
